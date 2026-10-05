@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Netlify Database Connection</title>
+</head>
+<body>
+    <h1>Data from Database</h1>
+    <ul id="data-list">Loading data...</ul>
 
+    <script>
+        (async () => {
+            const listElement = document.getElementById('data-list');
+            try {
+                // Calls the Netlify Function hosted at /netlify/functions/get-data
+                const response = await fetch('/.netlify/functions/get-data');
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                listElement.innerHTML = '';
+                
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item.name; // Adjust according to your table/column structure
+                    listElement.appendChild(li);
+                });
+            } catch (error) {
+                listElement.textContent = 'Failed to load data.';
+                console.error('Error:', error);
+            }
+        })();
+    </script>
+</body>
+</html>
