@@ -1,18 +1,19 @@
-// Example using a generic Postgres/Neon/Supabase client connection
+import { Client } from '@netlify/database'; // Official Netlify DB driver
+
 export async function handler(event, context) {
+    // Automatically connects using Netlify's managed environment secrets
+    const db = new Client(); 
+
     try {
-        // Fetch your data from the database here using process.env.DATABASE_URL
-        // const data = await db.query('SELECT * FROM items');
-
-        const mockData = [
-            { id: 1, name: 'First Item from Database' },
-            { id: 2, name: 'Second Item from Database' }
-        ];
-
+        // Query your Netlify Database table
+        const result = await db.query('SELECT id, name FROM users LIMIT 10;');
+        
         return {
             statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(mockData),
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(result.rows),
         };
     } catch (error) {
         return {
