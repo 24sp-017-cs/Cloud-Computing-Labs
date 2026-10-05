@@ -2,36 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Netlify Database Connection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netlify DB Connection</title>
 </head>
 <body>
-    <h1>Data from Database</h1>
-    <ul id="data-list">Loading data...</ul>
+    <h1>Data from Netlify Database</h1>
+    <ul id="db-results">Loading data...</ul>
 
     <script>
-        (async () => {
-            const listElement = document.getElementById('data-list');
+        async function fetchDatabaseData() {
+            const listContainer = document.getElementById('db-results');
             try {
-                // Calls the Netlify Function hosted at /netlify/functions/get-data
+                // Hits the Netlify serverless routing endpoint
                 const response = await fetch('/.netlify/functions/get-data');
-                
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Failed to query database function');
                 
                 const data = await response.json();
-                listElement.innerHTML = '';
+                listContainer.innerHTML = ''; // Clear loading text
                 
-                data.forEach(item => {
+                if(data.length === 0) {
+                    listContainer.innerHTML = '<li>No rows found in table.</li>';
+                    return;
+                }
+
+                data.forEach(row => {
                     const li = document.createElement('li');
-                    li.textContent = item.name; // Adjust according to your table/column structure
-                    listElement.appendChild(li);
+                    li.textContent = `ID: ${row.id} — Name: ${row.name}`;
+                    listContainer.appendChild(li);
                 });
-            } catch (error) {
-                listElement.textContent = 'Failed to load data.';
-                console.error('Error:', error);
+            } catch (err) {
+                listContainer.textContent = 'Error loading database resources.';
+                console.error(err);
             }
-        })();
+        }
+
+        // Initialize request on page load
+        fetchDatabaseData();
     </script>
 </body>
 </html>
