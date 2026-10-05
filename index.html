@@ -1,34 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Users</title>
+    <meta charset="UTF-8">
+    <title>User List</title>
 </head>
 <body>
-  <h1>Users</h1>
+    <h1>User List</h1>
+    <p id="status">Loading users...</p>
+    <ul id="users"></ul>
 
-  <table border="1">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody id="users"></tbody>
-  </table>
+    <script>
+      const statusText = document.getElementById('status');
+      const userList = document.getElementById('users');
 
-  <script>
-    fetch("/.netlify/functions/users")
-      .then(response => response.json())
-      .then(users => {
-        document.getElementById("users").innerHTML = users.map(user => `
-          <tr>
-            <td>${user.id}</td>
-            <td>${user.name}</td>
-            <td>${user.email}</td>
-          </tr>
-        `).join("");
-      });
-  </script>
+      fetch('/.netlify/functions/api')
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          statusText.style.display = 'none'; // Clear loading text
+          data.forEach(u => {
+            const li = document.createElement('li');
+            li.textContent = `${u.name} - ${u.email}`;
+            userList.appendChild(li);
+          });
+        })
+        .catch(err => {
+          statusText.style.color = 'red';
+          statusText.textContent = 'Error: ' + err.message;
+        });
+    </script>
 </body>
 </html>
